@@ -601,10 +601,7 @@
             if (panel && panel.style.display === 'block' && !panel.contains(e.target) && !btn.contains(e.target)) panel.style.display = 'none';
         });
 
-        // Login automático
-        setTimeout(async () => {
-            try { await loginAsAdmin("admin@s136.com", "bundapeluda"); } catch {}
-        }, 1000);
+
     });
 </script>
 </body>
