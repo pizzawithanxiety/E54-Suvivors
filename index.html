@@ -16,14 +16,6 @@
         h1 { font-size: 2.5rem; background: linear-gradient(90deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; }
         .server-tag { display: inline-block; background: linear-gradient(90deg, #1e3a8a, #3730a3); color: white; padding: 8px 25px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; }
 
-        /* TABS */
-        .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #334155; }
-        .tab-btn { padding: 12px 25px; background: none; border: none; color: #94a3b8; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-        .tab-btn:hover { color: #f1f5f9; }
-        .tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
         .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
         .form-section, .status-section { background-color: #1e293b; border-radius: 15px; padding: 25px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
@@ -175,70 +167,8 @@
         </p>
     </header>
 
-    <!-- TABS -->
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="inscricoes"><i class="fas fa-list-alt"></i> Inscrições</button>
-        <button class="tab-btn" data-tab="ranking"><i class="fas fa-trophy"></i> Ranking de Poder</button>
-        <button class="tab-btn" data-tab="formulario"><i class="fas fa-user-plus"></i> Inscrever-se</button>
-    </div>
-
-    <!-- TAB: INSCRIÇÕES -->
-    <div class="tab-content active" id="tab-inscricoes">
-        <section class="status-section">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-                <h2 class="section-title" style="margin:0;"><i class="fas fa-list-alt"></i> Status das Inscrições</h2>
-                <span id="total-count" style="color:#60a5fa;font-weight:bold;">0 inscrições</span>
-            </div>
-            <div class="stats" id="stats"></div>
-            <div class="status-filters">
-                <button class="status-filter status-all active" data-status="all">Todos</button>
-                <button class="status-filter status-pending" data-status="pending">Pendentes</button>
-                <button class="status-filter status-approved" data-status="approved">Aprovados</button>
-                <button class="status-filter status-rejected" data-status="rejected">Rejeitados</button>
-            </div>
-            <div class="players-list" id="players-list">
-                <div class="loading" id="loading"><i class="fas fa-spinner"></i><p>Conectando ao banco de dados...</p></div>
-            </div>
-        </section>
-    </div>
-
-    <!-- TAB: RANKING -->
-    <div class="tab-content" id="tab-ranking">
-        <section class="ranking-section">
-            <h2 class="section-title"><i class="fas fa-trophy"></i> Ranking de Poder</h2>
-
-            <div class="total-power" id="total-power-bar">
-                <span>Poder Total dos Aprovados</span>
-                <strong id="total-power-val">— M</strong>
-            </div>
-
-            <div class="ranking-controls">
-                <button class="ranking-filter active" data-rfilter="approved">Aprovados</button>
-                <button class="ranking-filter" data-rfilter="all">Todos</button>
-                <button class="ranking-filter" data-rfilter="pending">Pendentes</button>
-                <input class="ranking-search" id="ranking-search" type="text" placeholder="🔍 Buscar jogador...">
-            </div>
-
-            <div class="ranking-table-wrap">
-                <table id="ranking-table">
-                    <thead>
-                        <tr>
-                            <th data-col="rank">#</th>
-                            <th data-col="name">Jogador <span class="sort-icon">↕</span></th>
-                            <th data-col="power">Poder <span class="sort-icon">↕</span></th>
-                            <th data-col="status">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ranking-body">
-                        <tr><td colspan="4" class="ranking-empty"><i class="fas fa-spinner fa-spin"></i> Carregando...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-
-    <!-- TAB: FORMULÁRIO -->
-    <div class="tab-content" id="tab-formulario">
+    <!-- Formulário + Inscrições lado a lado -->
+    <div class="main-content">
         <section class="form-section">
             <h2 class="section-title"><i class="fas fa-user-plus"></i> Formulário de Inscrição</h2>
             <form id="migration-form">
@@ -307,7 +237,54 @@
                 <div class="error-message" id="error-message"><i class="fas fa-exclamation-triangle"></i> Erro ao enviar inscrição.</div>
             </form>
         </section>
+
+        <section class="status-section">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h2 class="section-title" style="margin:0;"><i class="fas fa-list-alt"></i> Status das Inscrições</h2>
+                <span id="total-count" style="color:#60a5fa;font-weight:bold;">0 inscrições</span>
+            </div>
+            <div class="stats" id="stats"></div>
+            <div class="status-filters">
+                <button class="status-filter status-all active" data-status="all">Todos</button>
+                <button class="status-filter status-pending" data-status="pending">Pendentes</button>
+                <button class="status-filter status-approved" data-status="approved">Aprovados</button>
+                <button class="status-filter status-rejected" data-status="rejected">Rejeitados</button>
+            </div>
+            <div class="players-list" id="players-list">
+                <div class="loading" id="loading"><i class="fas fa-spinner"></i><p>Conectando ao banco de dados...</p></div>
+            </div>
+        </section>
     </div>
+
+    <!-- Ranking embaixo, largura total -->
+    <section class="ranking-section" style="margin-top:30px;">
+        <h2 class="section-title"><i class="fas fa-trophy"></i> Ranking de Poder</h2>
+        <div class="total-power" id="total-power-bar">
+            <span>Poder Total dos Aprovados</span>
+            <strong id="total-power-val">— M</strong>
+        </div>
+        <div class="ranking-controls">
+            <button class="ranking-filter active" data-rfilter="approved">Aprovados</button>
+            <button class="ranking-filter" data-rfilter="all">Todos</button>
+            <button class="ranking-filter" data-rfilter="pending">Pendentes</button>
+            <input class="ranking-search" id="ranking-search" type="text" placeholder="🔍 Buscar jogador...">
+        </div>
+        <div class="ranking-table-wrap">
+            <table id="ranking-table">
+                <thead>
+                    <tr>
+                        <th data-col="rank">#</th>
+                        <th data-col="name">Jogador <span class="sort-icon">↕</span></th>
+                        <th data-col="power">Poder <span class="sort-icon">↕</span></th>
+                        <th data-col="status">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body">
+                    <tr><td colspan="4" class="ranking-empty"><i class="fas fa-spinner fa-spin"></i> Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
     <footer>
         <p>© 2025 Migração ERA 54 ⚔️ | Sistema Seguro com Firebase</p>
@@ -366,17 +343,6 @@
         const el = document.getElementById('error-message');
         if (el) { el.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${msg}`; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 5000); }
     }
-
-    // ── TABS ──
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-            if (btn.dataset.tab === 'ranking') renderRanking();
-        };
-    });
 
     // ── RANKING ──
     function renderRanking() {
@@ -572,8 +538,7 @@
             applications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             hideLoading();
             renderApplications();
-            // se a aba ranking estiver ativa, atualiza também
-            if (document.getElementById('tab-ranking').classList.contains('active')) renderRanking();
+            renderRanking();
         }, err => { showError("Erro na conexão"); console.error(err); });
 
         auth.onAuthStateChanged(user => {
