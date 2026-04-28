@@ -5,20 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Migration System ERA 54 ⚔️</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #0f172a; color: #f1f5f9; min-height: 100vh; line-height: 1.6; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         header { text-align: center; padding: 30px 0; border-bottom: 2px solid #334155; margin-bottom: 30px; }
         h1 { font-size: 2.5rem; background: linear-gradient(90deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; }
         .server-tag { display: inline-block; background: linear-gradient(90deg, #1e3a8a, #3730a3); color: white; padding: 8px 25px; border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; }
+
+        /* TABS */
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #334155; }
+        .tab-btn { padding: 12px 25px; background: none; border: none; color: #94a3b8; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .tab-btn:hover { color: #f1f5f9; }
+        .tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
-        .form-section, .status-section { background-color: #1e293b; border-radius: 15px; padding: 25px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
+        .form-section, .status-section { background-color: #1e293b; border-radius: 15px; padding: 25px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .section-title { font-size: 1.5rem; margin-bottom: 20px; color: #60a5fa; display: flex; align-items: center; gap: 10px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; color: #cbd5e1; font-weight: 500; }
@@ -36,7 +44,7 @@
         .status-pending { background-color: #f59e0b; color: #78350f; }
         .status-approved { background-color: #10b981; color: #064e3b; }
         .status-rejected { background-color: #ef4444; color: #7f1d1d; }
-        .status-filter.active { transform: scale(1.05); box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); }
+        .status-filter.active { transform: scale(1.05); box-shadow: 0 0 10px rgba(0,0,0,0.3); }
         .players-list { max-height: 600px; overflow-y: auto; }
         .player-card { background-color: #0f172a; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 4px solid; }
         .player-card.pending { border-left-color: #f59e0b; }
@@ -45,605 +53,569 @@
         .player-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .player-name { font-weight: bold; font-size: 1.1rem; }
         .player-status { padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
-        .status-pending-badge { background-color: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .status-approved-badge { background-color: rgba(16, 185, 129, 0.2); color: #10b981; }
-        .status-rejected-badge { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .status-pending-badge { background-color: rgba(245,158,11,0.2); color: #f59e0b; }
+        .status-approved-badge { background-color: rgba(16,185,129,0.2); color: #10b981; }
+        .status-rejected-badge { background-color: rgba(239,68,68,0.2); color: #ef4444; }
         .player-info { color: #94a3b8; font-size: 0.9rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .empty-state { text-align: center; padding: 40px 20px; color: #64748b; display: none; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #64748b; }
         .empty-state i { font-size: 3rem; margin-bottom: 15px; color: #475569; }
-        footer { text-align: center; padding: 25px 0; margin-top: 40px; border-top: 1px solid #334155; color: #94a3b8; font-size: 0.9rem; }
+        .stats { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat-card { background-color: #0f172a; padding: 15px; border-radius: 10px; flex: 1; min-width: 120px; text-align: center; }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #60a5fa; }
+        .stat-label { color: #94a3b8; font-size: 0.9rem; margin-top: 5px; }
+        .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
+        .action-buttons button { flex: 1; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .approve-btn { background: #10b981; color: white; }
+        .reject-btn { background: #ef4444; color: white; }
+        .revert-btn { background: #475569; color: white; font-size: 0.85rem; }
+        .loading { text-align: center; padding: 20px; color: #60a5fa; }
+        .loading i { font-size: 2rem; margin-bottom: 10px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         .success-message, .error-message { padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; display: none; }
-        .success-message { background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; }
-        .error-message { background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; }
+        .success-message { background-color: rgba(16,185,129,0.1); border: 1px solid #10b981; color: #10b981; }
+        .error-message { background-color: rgba(239,68,68,0.1); border: 1px solid #ef4444; color: #ef4444; }
         .admin-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #1e293b; color: #60a5fa; border: 1px solid #334155; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; z-index: 1000; }
         .admin-btn:hover { background: #334155; }
-        .admin-panel { position: fixed; top: 70px; right: 20px; background: rgba(30, 41, 59, 0.95); padding: 20px; border-radius: 10px; border: 1px solid #334155; width: 350px; z-index: 1000; display: none; }
+        .admin-panel { position: fixed; top: 70px; right: 20px; background: rgba(30,41,59,0.95); padding: 20px; border-radius: 10px; border: 1px solid #334155; width: 350px; z-index: 1000; display: none; }
         .admin-panel h3 { color: #60a5fa; margin-bottom: 15px; }
         .admin-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .admin-action-btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; }
         .export-btn { background-color: #3b82f6; }
         .delete-btn { background-color: #ef4444; }
         .refresh-btn { background-color: #10b981; }
-        .stats { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat-card { background-color: #0f172a; padding: 15px; border-radius: 10px; flex: 1; min-width: 150px; text-align: center; }
-        .stat-number { font-size: 2rem; font-weight: bold; color: #60a5fa; }
-        .stat-label { color: #94a3b8; font-size: 0.9rem; margin-top: 5px; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .action-buttons button { flex: 1; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .approve-btn { background: #10b981; color: white; }
-        .reject-btn { background: #ef4444; color: white; }
-        .loading { text-align: center; padding: 20px; color: #60a5fa; }
-        .loading i { font-size: 2rem; margin-bottom: 10px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .connection-status { position: fixed; bottom: 20px; left: 20px; padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; gap: 8px; z-index: 1000; }
-        .connected { background-color: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
-        .disconnected { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
-        .login-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .connected { background-color: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; }
+        .login-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 2000; }
         .login-box { background: #1e293b; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; border: 1px solid #334155; }
         .login-box h3 { color: #60a5fa; margin-bottom: 20px; text-align: center; }
-        .login-input { margin-bottom: 15px; }
         .login-buttons { display: flex; gap: 10px; margin-top: 20px; }
         .login-buttons button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .login-submit { background: #10b981; color: white; }
         .login-cancel { background: #475569; color: white; }
+        footer { text-align: center; padding: 25px 0; margin-top: 40px; border-top: 1px solid #334155; color: #94a3b8; font-size: 0.9rem; }
+
+        /* ── RANKING ── */
+        .ranking-section { background-color: #1e293b; border-radius: 15px; padding: 25px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .ranking-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .ranking-filter { padding: 8px 15px; border-radius: 20px; font-weight: 600; cursor: pointer; border: none; transition: all 0.3s; background-color: #475569; color: white; }
+        .ranking-filter.active { background: linear-gradient(90deg, #3b82f6, #8b5cf6); transform: scale(1.05); }
+        .ranking-search { flex: 1; min-width: 180px; padding: 8px 15px; background-color: #0f172a; border: 1px solid #475569; border-radius: 20px; color: #f1f5f9; font-size: 0.9rem; }
+        .ranking-search:focus { outline: none; border-color: #3b82f6; }
+        .ranking-table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: #0f172a; }
+        th { padding: 12px 15px; text-align: left; color: #60a5fa; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; cursor: pointer; user-select: none; }
+        th:hover { color: #93c5fd; }
+        th .sort-icon { margin-left: 5px; opacity: 0.5; }
+        th.sorted .sort-icon { opacity: 1; }
+        tbody tr { border-bottom: 1px solid #1e293b; transition: background 0.15s; }
+        tbody tr:hover { background: #1e293b; }
+        td { padding: 12px 15px; font-size: 0.95rem; }
+        .rank-num { font-weight: bold; color: #94a3b8; width: 45px; }
+        .rank-1 .rank-num { color: #fbbf24; font-size: 1.1rem; }
+        .rank-2 .rank-num { color: #94a3b8; font-size: 1.05rem; }
+        .rank-3 .rank-num { color: #cd7f32; }
+        .rank-medal { margin-right: 4px; }
+        .power-bar-wrap { display: flex; align-items: center; gap: 10px; }
+        .power-bar { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); min-width: 4px; transition: width 0.4s ease; }
+        .power-val { white-space: nowrap; font-weight: 600; color: #f1f5f9; min-width: 60px; }
+        .ranking-status { padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+        .ranking-empty { text-align: center; padding: 40px; color: #64748b; }
+        .total-power { background: #0f172a; border-radius: 10px; padding: 15px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .total-power span { color: #94a3b8; font-size: 0.9rem; }
+        .total-power strong { color: #60a5fa; font-size: 1.3rem; }
     </style>
 </head>
 <body>
-    <!-- Modal de Login Admin -->
-    <div class="login-modal" id="login-modal">
-        <div class="login-box">
-            <h3><i class="fas fa-lock"></i> Login Administrador</h3>
-            <div class="form-group">
-                <label>Email do Admin</label>
-                <input type="email" id="admin-email" placeholder="admin@s136.com" class="login-input">
-            </div>
-            <div class="form-group">
-                <label>Senha</label>
-                <input type="password" id="admin-password" placeholder="Digite a senha" class="login-input">
-            </div>
-            <div class="login-buttons">
-                <button class="login-submit" id="login-submit">Entrar</button>
-                <button class="login-cancel" id="login-cancel">Cancelar</button>
-            </div>
+
+<div class="login-modal" id="login-modal">
+    <div class="login-box">
+        <h3><i class="fas fa-lock"></i> Login Administrador</h3>
+        <div class="form-group">
+            <label>Email do Admin</label>
+            <input type="email" id="admin-email" placeholder="admin@s136.com">
+        </div>
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="admin-password" placeholder="Digite a senha">
+        </div>
+        <div class="login-buttons">
+            <button class="login-submit" id="login-submit">Entrar</button>
+            <button class="login-cancel" id="login-cancel">Cancelar</button>
         </div>
     </div>
+</div>
 
-    <!-- Status da Conexão -->
-    <div class="connection-status connected" id="connection-status">
-        <i class="fas fa-wifi"></i> <span>Conectado ao Banco de Dados</span>
+<div class="connection-status connected" id="connection-status">
+    <i class="fas fa-wifi"></i> <span>Conectado ao Banco de Dados</span>
+</div>
+
+<button class="admin-btn" id="admin-btn"><i class="fas fa-user-shield"></i> Painel Admin</button>
+
+<div class="admin-panel" id="admin-panel">
+    <h3><i class="fas fa-user-shield"></i> Painel do Administrador</h3>
+    <p style="color:#94a3b8;font-size:0.9rem;margin-bottom:15px;">Logado como: <span id="admin-email-display" style="color:#60a5fa;">Não logado</span></p>
+    <div class="admin-actions">
+        <button class="admin-action-btn refresh-btn" id="refresh-btn"><i class="fas fa-sync"></i> Atualizar Lista</button>
+        <button class="admin-action-btn export-btn" id="export-btn"><i class="fas fa-download"></i> Exportar Dados</button>
+        <button class="admin-action-btn delete-btn" id="delete-all-btn"><i class="fas fa-trash"></i> Limpar Tudo</button>
+        <button class="admin-action-btn" id="logout-btn" style="background:#8b5cf6;"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>
+</div>
 
-    <!-- Botão Admin -->
-    <button class="admin-btn" id="admin-btn"><i class="fas fa-user-shield"></i> Painel Admin</button>
-
-    <!-- Painel do Admin -->
-    <div class="admin-panel" id="admin-panel">
-        <h3><i class="fas fa-user-shield"></i> Painel do Administrador</h3>
-        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px;">
-            Logado como: <span id="admin-email-display" style="color: #60a5fa;">Não logado</span>
+<div class="container">
+    <header>
+        <h1>ERA 54 ⚔️</h1>
+        <div class="server-tag">Helping people escape bad life choices (and bad kingdoms).</div>
+        <p style="margin-top:15px;color:#94a3b8;max-width:600px;margin-left:auto;margin-right:auto;">
+            Sistema seguro com banco de dados em tempo real. Todos os usuários veem a mesma lista.
         </p>
-        <div class="admin-actions">
-            <button class="admin-action-btn refresh-btn" id="refresh-btn"><i class="fas fa-sync"></i> Atualizar Lista</button>
-            <button class="admin-action-btn export-btn" id="export-btn"><i class="fas fa-download"></i> Exportar Dados</button>
-            <button class="admin-action-btn delete-btn" id="delete-all-btn"><i class="fas fa-trash"></i> Limpar Tudo</button>
-            <button class="admin-action-btn" id="logout-btn" style="background: #8b5cf6;"><i class="fas fa-sign-out-alt"></i> Sair</button>
-        </div>
+    </header>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="inscricoes"><i class="fas fa-list-alt"></i> Inscrições</button>
+        <button class="tab-btn" data-tab="ranking"><i class="fas fa-trophy"></i> Ranking de Poder</button>
+        <button class="tab-btn" data-tab="formulario"><i class="fas fa-user-plus"></i> Inscrever-se</button>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>ERA 54 ⚔️</h1>
-            <div class="server-tag">Helping people escape bad life choices (and bad kingdoms).</div>
-            <p style="margin-top: 15px; color: #94a3b8; max-width: 600px; margin-left: auto; margin-right: auto;">
-                Sistema seguro com banco de dados em tempo real. Todos os usuários veem a mesma lista.
-            </p>
-        </header>
-
-        <main class="main-content">
-            <!-- Formulário de Inscrição -->
-            <section class="form-section">
-                <h2 class="section-title"><i class="fas fa-user-plus"></i> Formulário de Inscrição</h2>
-                <form id="migration-form">
-                    <div class="form-group">
-                        <label for="player-name">Nome do Personagem <span class="required">*</span></label>
-                        <input type="text" id="player-name" placeholder="Digite o nome do seu personagem" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="player-power">Power <span class="required">*</span></label>
-                        <input type="text" id="player-power" placeholder="Ex: 2.5M, 150K" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="player-merits">Méritos <span class="required">*</span></label>
-                        <textarea id="player-merits" placeholder="Liste seus méritos e conquistas" required></textarea>
-                    </div><div class="form-group">
-    <label for="origin-server">Servidor de Origem <span class="required">*</span></label>
-
-    <select id="origin-server" required>
-        <option value="">Selecione seu servidor atual</option>
-
-        <option value="R001">R001</option>
-        <option value="K001">K001</option>
-        <option value="K002">K002</option>
-
-        <option value="E030">E030</option>
-        <option value="E031">E031</option>
-        <option value="E032">E032</option>
-
-        <option value="E033">E033</option>
-        <option value="E034">E034</option>
-        <option value="E035">E035</option>
-
-        <option value="E038">E038</option>
-        <option value="E039">E039</option>
-        <option value="E040">E040</option>
-
-        <option value="E115">E115</option>
-        <option value="E116">E116</option>
-        <option value="E118">E118</option>
-
-        <option value="E119">E119</option>
-        <option value="E127">E127</option>
-        <option value="E128">E128</option>
-
-        <option value="E129">E129</option>
-        <option value="E134">E134</option>
-        <option value="E135">E135</option>
-
-        <option value="E177">E177</option>
-        <option value="E178">E178</option>
-        <option value="E179">E179</option>
-
-        <option value="E180">E180</option>
-        <option value="E181">E181</option>
-        <option value="E182">E182</option>
-
-        <option value="E183">E183</option>
-        <option value="E184">E184</option>
-        <option value="E185">E185</option>
-
-        <option value="E186">E186</option>
-        <option value="E187">E187</option>
-        <option value="E188">E188</option>
-
-        <option value="E189">E189</option>
-        <option value="E190">E190</option>
-        <option value="E191">E191</option>
-
-        <option value="E192">E192</option>
-        <option value="E193">E193</option>
-        <option value="E194">E194</option>
-
-        <option value="E195">E195</option>                    
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="timezone">Fuso Horário <span class="required">*</span></label>
-                        <select id="timezone" required>
-                            <option value="">Selecione seu fuso horário</option>
-                            <option value="GMT-3">GMT-3 (Brasil, Argentina)</option>
-                            <option value="GMT-8">GMT-8 (Pacific Time)</option>
-                            <option value="GMT-5">GMT-5 (Eastern Time)</option>
-                            <option value="GMT+0">GMT+0 (UK, Portugal)</option>
-                            <option value="GMT+1">GMT+1 (Europa Central)</option>
-                            <option value="GMT+2">GMT+2 (Europa Oriental)</option>
-                            <option value="GMT+3">GMT+3 (Rússia, Turquia)</option>
-                            <option value="GMT+5.5">GMT+5.5 (Índia)</option>
-                            <option value="GMT+8">GMT+8 (China, Singapura)</option>
-                            <option value="GMT+9">GMT+9 (Japão, Coreia)</option>
-                            <option value="GMT+10">GMT+10 (Austrália)</option>
-                            <option value="GMT+12">GMT+12 (Nova Zelândia)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="migration-reason">Motivo da Migração <span class="required">*</span></label>
-                        <textarea id="migration-reason" placeholder="Explique por que deseja migrar para a ERA 54" required></textarea>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="terms" required>
-                        <label for="terms">Concordo com os termos de migração e confirmo que todas as informações são verdadeiras</label>
-                    </div>
-                    <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Enviar Inscrição</button>
-                    <div class="success-message" id="success-message"><i class="fas fa-check-circle"></i> Inscrição enviada com sucesso!</div>
-                    <div class="error-message" id="error-message"><i class="fas fa-exclamation-triangle"></i> Erro ao enviar inscrição.</div>
-                </form>
-            </section>
-
-            <!-- Status das Inscrições -->
-            <section class="status-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 class="section-title" style="margin: 0;"><i class="fas fa-list-alt"></i> Status das Inscrições</h2>
-                    <span id="total-count" style="color: #60a5fa; font-weight: bold;">0 inscrições</span>
-                </div>
-                <div class="stats" id="stats"></div>
-                <div class="status-filters">
-                    <button class="status-filter status-all active" data-status="all">Todos</button>
-                    <button class="status-filter status-pending" data-status="pending">Pendentes</button>
-                    <button class="status-filter status-approved" data-status="approved">Aprovados</button>
-                    <button class="status-filter status-rejected" data-status="rejected">Rejeitados</button>
-                </div>
-                <div class="players-list" id="players-list">
-                    <div class="loading" id="loading"><i class="fas fa-spinner"></i><p>Conectando ao banco de dados...</p></div>
-                    <div class="empty-state" id="empty-state"><i class="fas fa-users"></i><h3>Nenhuma inscrição encontrada</h3><p>Seja o primeiro a se inscrever!</p></div>
-                </div>
-            </section>
-        </main>
-        <footer>
-            <p>© 2023 Migração ERA 54 ⚔️ | Sistema Seguro com Firebase</p>
-        </footer>
+    <!-- TAB: INSCRIÇÕES -->
+    <div class="tab-content active" id="tab-inscricoes">
+        <section class="status-section">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h2 class="section-title" style="margin:0;"><i class="fas fa-list-alt"></i> Status das Inscrições</h2>
+                <span id="total-count" style="color:#60a5fa;font-weight:bold;">0 inscrições</span>
+            </div>
+            <div class="stats" id="stats"></div>
+            <div class="status-filters">
+                <button class="status-filter status-all active" data-status="all">Todos</button>
+                <button class="status-filter status-pending" data-status="pending">Pendentes</button>
+                <button class="status-filter status-approved" data-status="approved">Aprovados</button>
+                <button class="status-filter status-rejected" data-status="rejected">Rejeitados</button>
+            </div>
+            <div class="players-list" id="players-list">
+                <div class="loading" id="loading"><i class="fas fa-spinner"></i><p>Conectando ao banco de dados...</p></div>
+            </div>
+        </section>
     </div>
 
-    <script>
-        // ============================================
-        // CONFIGURAÇÃO SIMPLIFICADA
-        // ============================================
-        
-        // SUAS CONFIGURAÇÕES DO FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7pmnK2wSt7bXtZ4aBo8lPDOP2oewjReU",
-            authDomain: "s136-migration.firebaseapp.com",
-            projectId: "s136-migration",
-            storageBucket: "s136-migration.firebasestorage.app",
-            messagingSenderId: "1081148459168",
-            appId: "1:1081148459168:web:f44d2904ec2a54723361c5"
-        };
-        
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        
-        // Estado do sistema
-        let applications = [];
-        let isAdmin = false;
-        let currentUser = null;
+    <!-- TAB: RANKING -->
+    <div class="tab-content" id="tab-ranking">
+        <section class="ranking-section">
+            <h2 class="section-title"><i class="fas fa-trophy"></i> Ranking de Poder</h2>
 
-        // ============================================
-        // FUNÇÕES SIMPLIFICADAS
-        // ============================================
-        
-        // Funções da UI
-        function hideLoading() {
-            const el = document.getElementById('loading');
-            if (el) el.style.display = 'none';
-        }
-        
-        function showSuccess(msg) {
-            const el = document.getElementById('success-message');
-            if (el) {
-                el.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
-                el.style.display = 'block';
-                setTimeout(() => el.style.display = 'none', 5000);
-            }
-        }
-        
-        function showError(msg) {
-            const el = document.getElementById('error-message');
-            if (el) {
-                el.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${msg}`;
-                el.style.display = 'block';
-                setTimeout(() => el.style.display = 'none', 5000);
-            }
-        }
-        
-        // Login simplificado
-        async function loginAsAdmin(email, password) {
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                currentUser = userCredential.user;
-                isAdmin = true;
-                showSuccess("Login realizado com sucesso!");
-                updateAdminUI();
-                return true;
-            } catch (error) {
-                console.error("Erro login:", error);
-                showError("Email ou senha incorretos");
-                return false;
-            }
-        }
-        
-        function updateAdminUI() {
-            const emailDisplay = document.getElementById('admin-email-display');
-            const adminBtn = document.getElementById('admin-btn');
-            
-            if (isAdmin && currentUser) {
-                if (emailDisplay) emailDisplay.textContent = currentUser.email;
-                if (adminBtn) {
-                    adminBtn.innerHTML = '<i class="fas fa-user-shield"></i> Admin Logado';
-                    adminBtn.style.display = 'flex';
-                }
-            } else {
-                if (emailDisplay) emailDisplay.textContent = 'Não logado';
-                if (adminBtn) {
-                    adminBtn.innerHTML = '<i class="fas fa-user-shield"></i> Painel Admin';
-                    adminBtn.style.display = 'flex';
-                }
-            }
-        }
-        
-        // ✅ FUNÇÃO SIMPLIFICADA PARA ATUALIZAR STATUS
-        async function updateApplicationStatus(applicationId, status) {
-            console.log(`🔄 Atualizando inscrição ${applicationId} para ${status}`);
-            
-            try {
-                // Atualização SIMPLES - só muda o status
-                await db.collection('applications').doc(applicationId).update({
-                    status: status
-                });
-                
-                console.log(`✅ Inscrição ${applicationId} atualizada para ${status}`);
-                showSuccess(`Inscrição ${status === 'approved' ? 'aprovada' : 'rejeitada'} com sucesso!`);
-                return true;
-            } catch (error) {
-                console.error("❌ Erro detalhado ao atualizar:", error.code, error.message);
-                
-                // Mensagens de erro específicas
-                if (error.code === 'permission-denied') {
-                    showError("❌ PERMISSÃO NEGADA: Configure as regras do Firestore");
-                    console.log("⚠️ Configure as regras do Firestore para permitir escrita:");
-                    console.log("1. Vá para Firebase Console → Firestore Database → Rules");
-                    console.log("2. Substitua por:");
-                    console.log(`
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
+            <div class="total-power" id="total-power-bar">
+                <span>Poder Total dos Aprovados</span>
+                <strong id="total-power-val">— M</strong>
+            </div>
+
+            <div class="ranking-controls">
+                <button class="ranking-filter active" data-rfilter="approved">Aprovados</button>
+                <button class="ranking-filter" data-rfilter="all">Todos</button>
+                <button class="ranking-filter" data-rfilter="pending">Pendentes</button>
+                <input class="ranking-search" id="ranking-search" type="text" placeholder="🔍 Buscar jogador...">
+            </div>
+
+            <div class="ranking-table-wrap">
+                <table id="ranking-table">
+                    <thead>
+                        <tr>
+                            <th data-col="rank">#</th>
+                            <th data-col="name">Jogador <span class="sort-icon">↕</span></th>
+                            <th data-col="power">Poder <span class="sort-icon">↕</span></th>
+                            <th data-col="status">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body">
+                        <tr><td colspan="4" class="ranking-empty"><i class="fas fa-spinner fa-spin"></i> Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- TAB: FORMULÁRIO -->
+    <div class="tab-content" id="tab-formulario">
+        <section class="form-section">
+            <h2 class="section-title"><i class="fas fa-user-plus"></i> Formulário de Inscrição</h2>
+            <form id="migration-form">
+                <div class="form-group">
+                    <label for="player-name">Nome do Personagem <span class="required">*</span></label>
+                    <input type="text" id="player-name" placeholder="Digite o nome do seu personagem" required>
+                </div>
+                <div class="form-group">
+                    <label for="player-power">Power <span class="required">*</span></label>
+                    <input type="text" id="player-power" placeholder="Ex: 2.5M, 150K" required>
+                </div>
+                <div class="form-group">
+                    <label for="player-merits">Méritos <span class="required">*</span></label>
+                    <textarea id="player-merits" placeholder="Liste seus méritos e conquistas" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="origin-server">Servidor de Origem <span class="required">*</span></label>
+                    <select id="origin-server" required>
+                        <option value="">Selecione seu servidor atual</option>
+                        <option value="R001">R001</option>
+                        <option value="K001">K001</option>
+                        <option value="K002">K002</option>
+                        <option value="E030">E030</option><option value="E031">E031</option><option value="E032">E032</option>
+                        <option value="E033">E033</option><option value="E034">E034</option><option value="E035">E035</option>
+                        <option value="E038">E038</option><option value="E039">E039</option><option value="E040">E040</option>
+                        <option value="E115">E115</option><option value="E116">E116</option><option value="E118">E118</option>
+                        <option value="E119">E119</option><option value="E127">E127</option><option value="E128">E128</option>
+                        <option value="E129">E129</option><option value="E134">E134</option><option value="E135">E135</option>
+                        <option value="E177">E177</option><option value="E178">E178</option><option value="E179">E179</option>
+                        <option value="E180">E180</option><option value="E181">E181</option><option value="E182">E182</option>
+                        <option value="E183">E183</option><option value="E184">E184</option><option value="E185">E185</option>
+                        <option value="E186">E186</option><option value="E187">E187</option><option value="E188">E188</option>
+                        <option value="E189">E189</option><option value="E190">E190</option><option value="E191">E191</option>
+                        <option value="E192">E192</option><option value="E193">E193</option><option value="E194">E194</option>
+                        <option value="E195">E195</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="timezone">Fuso Horário <span class="required">*</span></label>
+                    <select id="timezone" required>
+                        <option value="">Selecione seu fuso horário</option>
+                        <option value="GMT-3">GMT-3 (Brasil, Argentina)</option>
+                        <option value="GMT-8">GMT-8 (Pacific Time)</option>
+                        <option value="GMT-5">GMT-5 (Eastern Time)</option>
+                        <option value="GMT+0">GMT+0 (UK, Portugal)</option>
+                        <option value="GMT+1">GMT+1 (Europa Central)</option>
+                        <option value="GMT+2">GMT+2 (Europa Oriental)</option>
+                        <option value="GMT+3">GMT+3 (Rússia, Turquia)</option>
+                        <option value="GMT+5.5">GMT+5.5 (Índia)</option>
+                        <option value="GMT+8">GMT+8 (China, Singapura)</option>
+                        <option value="GMT+9">GMT+9 (Japão, Coreia)</option>
+                        <option value="GMT+10">GMT+10 (Austrália)</option>
+                        <option value="GMT+12">GMT+12 (Nova Zelândia)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="migration-reason">Motivo da Migração <span class="required">*</span></label>
+                    <textarea id="migration-reason" placeholder="Explique por que deseja migrar para a ERA 54" required></textarea>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">Concordo com os termos de migração e confirmo que todas as informações são verdadeiras</label>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Enviar Inscrição</button>
+                <div class="success-message" id="success-message"><i class="fas fa-check-circle"></i> Inscrição enviada com sucesso!</div>
+                <div class="error-message" id="error-message"><i class="fas fa-exclamation-triangle"></i> Erro ao enviar inscrição.</div>
+            </form>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2025 Migração ERA 54 ⚔️ | Sistema Seguro com Firebase</p>
+    </footer>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyA7pmnK2wSt7bXtZ4aBo8lPDOP2oewjReU",
+        authDomain: "s136-migration.firebaseapp.com",
+        projectId: "s136-migration",
+        storageBucket: "s136-migration.firebasestorage.app",
+        messagingSenderId: "1081148459168",
+        appId: "1:1081148459168:web:f44d2904ec2a54723361c5"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let applications = [];
+    let isAdmin = false;
+    let currentUser = null;
+    let rankingFilter = 'approved';
+    let rankingSort = { col: 'power', dir: 'desc' };
+
+    // ── UTILS ──
+    function parsePower(str) {
+        if (!str) return 0;
+        const s = String(str).replace(',', '.').toUpperCase().trim();
+        const n = parseFloat(s);
+        if (isNaN(n)) return 0;
+        if (s.endsWith('B')) return n * 1000;
+        if (s.endsWith('M')) return n;
+        if (s.endsWith('K')) return n / 1000;
+        return n;
     }
-  }
-}
-                    `);
-                } else {
-                    showError(`Erro: ${error.message}`);
-                }
-                return false;
-            }
-        }
-        
-        // ✅ FUNÇÃO PARA ADICIONAR EVENTOS AOS BOTÕES (SIMPLIFICADA)
-        function setupActionButtons() {
-            // Botões Aprovar
-            document.querySelectorAll('.approve-btn').forEach(btn => {
-                // Remover evento anterior para evitar duplicação
-                btn.replaceWith(btn.cloneNode(true));
-            });
-            
-            // Botões Rejeitar
-            document.querySelectorAll('.reject-btn').forEach(btn => {
-                btn.replaceWith(btn.cloneNode(true));
-            });
-            
-            // Adicionar novos eventos
-            document.querySelectorAll('.approve-btn').forEach(btn => {
-                btn.onclick = async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const id = btn.getAttribute('data-id');
-                    console.log("✅ Clicou em Aprovar para ID:", id);
-                    await updateApplicationStatus(id, 'approved');
-                };
-            });
-            
-            document.querySelectorAll('.reject-btn').forEach(btn => {
-                btn.onclick = async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const id = btn.getAttribute('data-id');
-                    console.log("❌ Clicou em Rejeitar para ID:", id);
-                    await updateApplicationStatus(id, 'rejected');
-                };
-            });
-        }
-        
-        // Renderizar inscrições
-        function renderApplications(filter = 'all') {
-            const filtered = filter === 'all' ? applications : applications.filter(app => app.status === filter);
-            const playersList = document.getElementById('players-list');
-            const emptyState = document.getElementById('empty-state');
-            
-            if (!playersList || !emptyState) return;
-            
-            if (filtered.length === 0) {
-                emptyState.style.display = 'block';
-                playersList.innerHTML = '';
-                playersList.appendChild(emptyState);
-                return;
-            }
-            
-            emptyState.style.display = 'none';
-            
-            let html = '';
-            filtered.forEach(app => {
-                const statusClass = {
-                    'pending': 'status-pending-badge',
-                    'approved': 'status-approved-badge', 
-                    'rejected': 'status-rejected-badge'
-                }[app.status] || '';
-                
-                const statusText = {
-                    'pending': 'Pendente',
-                    'approved': 'Aprovado',
-                    'rejected': 'Rejeitado'
-                }[app.status] || '';
-                
-                const date = app.createdAt?.toDate ? 
-                    app.createdAt.toDate().toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) : 
-                    'Data não disponível';
-                
-                // ✅ MOSTRAR BOTÕES APENAS SE FOR ADMIN E SE ESTIVER PENDENTE
-                const actions = (isAdmin && app.status === 'pending') ? `
-                    <div class="action-buttons">
-                        <button class="approve-btn" data-id="${app.id}"><i class="fas fa-check"></i> Aprovar</button>
-                        <button class="reject-btn" data-id="${app.id}"><i class="fas fa-times"></i> Rejeitar</button>
-                    </div>
-                ` : '';
-                
-                html += `
-                    <div class="player-card ${app.status}">
-                        <div class="player-header">
-                            <div class="player-name">${app.name || 'Sem nome'}</div>
-                            <div class="player-status ${statusClass}">${statusText}</div>
-                        </div>
-                        <div class="player-info">
-                            <div><strong>Power:</strong> ${app.power || 'N/A'}</div>
-                            <div><strong>Origem:</strong> ${app.origin || 'N/A'}</div>
-                            <div><strong>Fuso:</strong> ${app.timezone || 'N/A'}</div>
-                            <div><strong>Enviado:</strong> ${date}</div>
-                        </div>
-                        <div style="margin-top: 10px;"><strong>Méritos:</strong> ${app.merits || 'N/A'}</div>
-                        <div style="margin-top: 10px;"><strong>Motivo:</strong> ${app.reason || 'N/A'}</div>
-                        ${actions}
-                    </div>
-                `;
-            });
-            
-            playersList.innerHTML = html;
-            
-            // ✅ CONFIGURAR OS BOTÕES APÓS RENDERIZAR
-            setupActionButtons();
-            
-            updateStatistics();
-            updateTotalCount();
-        }
-        
-        function updateStatistics() {
-            const stats = {
-                total: applications.length,
-                pending: applications.filter(a => a.status === 'pending').length,
-                approved: applications.filter(a => a.status === 'approved').length,
-                rejected: applications.filter(a => a.status === 'rejected').length
-            };
-            
-            const statsEl = document.getElementById('stats');
-            if (statsEl) {
-                statsEl.innerHTML = `
-                    <div class="stat-card"><div class="stat-number">${stats.total}</div><div class="stat-label">Total</div></div>
-                    <div class="stat-card"><div class="stat-number">${stats.pending}</div><div class="stat-label">Pendentes</div></div>
-                    <div class="stat-card"><div class="stat-number">${stats.approved}</div><div class="stat-label">Aprovados</div></div>
-                    <div class="stat-card"><div class="stat-number">${stats.rejected}</div><div class="stat-label">Rejeitados</div></div>
-                `;
-            }
-        }
-        
-        function updateTotalCount() {
-            const el = document.getElementById('total-count');
-            if (el) el.textContent = `${applications.length} inscrições`;
+
+    function formatPower(val) {
+        if (val >= 1000) return (val / 1000).toFixed(2) + 'B';
+        if (val >= 1) return val % 1 === 0 ? val + 'M' : val.toFixed(1) + 'M';
+        return (val * 1000).toFixed(0) + 'K';
+    }
+
+    function hideLoading() {
+        const el = document.getElementById('loading');
+        if (el) el.style.display = 'none';
+    }
+
+    function showSuccess(msg) {
+        const el = document.getElementById('success-message');
+        if (el) { el.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 5000); }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('error-message');
+        if (el) { el.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${msg}`; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 5000); }
+    }
+
+    // ── TABS ──
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            if (btn.dataset.tab === 'ranking') renderRanking();
+        };
+    });
+
+    // ── RANKING ──
+    function renderRanking() {
+        const search = (document.getElementById('ranking-search').value || '').toLowerCase();
+        let list = applications.filter(a => {
+            if (rankingFilter !== 'all' && a.status !== rankingFilter) return false;
+            if (search && !a.name.toLowerCase().includes(search)) return false;
+            return true;
+        });
+
+        // sort
+        list.sort((a, b) => {
+            let va, vb;
+            if (rankingSort.col === 'power') { va = parsePower(a.power); vb = parsePower(b.power); }
+            else { va = (a.name || '').toLowerCase(); vb = (b.name || '').toLowerCase(); }
+            if (va < vb) return rankingSort.dir === 'asc' ? -1 : 1;
+            if (va > vb) return rankingSort.dir === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        // total power (approved only)
+        const totalPower = applications
+            .filter(a => a.status === 'approved')
+            .reduce((s, a) => s + parsePower(a.power), 0);
+        document.getElementById('total-power-val').textContent = formatPower(totalPower);
+
+        const maxPower = list.length ? parsePower(list[0].power) : 1;
+        const tbody = document.getElementById('ranking-body');
+
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="ranking-empty"><i class="fas fa-users"></i><br>Nenhum jogador encontrado</td></tr>`;
+            return;
         }
 
-        // ============================================
-        // INICIALIZAÇÃO
-        // ============================================
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("🚀 Sistema inicializando...");
-            
-            // Iniciar listener do Firestore
-            db.collection('applications')
-                .orderBy('createdAt', 'desc')
-                .onSnapshot(snapshot => {
-                    applications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    console.log("📊 Aplicações carregadas:", applications.length);
-                    hideLoading();
-                    renderApplications();
-                }, error => {
-                    console.error("❌ Erro Firestore:", error);
-                    showError("Erro na conexão com o banco de dados");
-                });
-            
-            // Verificar autenticação
-            auth.onAuthStateChanged(user => {
-                currentUser = user;
-                isAdmin = !!user; // Para teste: qualquer usuário logado é admin
-                console.log("👤 Estado auth:", user ? "Logado" : "Não logado", "Admin:", isAdmin);
-                updateAdminUI();
-            });
-            
-            // Botão admin
-            document.getElementById('admin-btn').onclick = () => {
-                if (!isAdmin) {
-                    document.getElementById('login-modal').style.display = 'flex';
-                } else {
-                    const panel = document.getElementById('admin-panel');
-                    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-                }
+        tbody.innerHTML = list.map((app, i) => {
+            const rank = i + 1;
+            const pVal = parsePower(app.power);
+            const barW = Math.max(4, Math.round((pVal / maxPower) * 180));
+            const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+            const statusLabel = { pending: 'Pendente', approved: 'Aprovado', rejected: 'Rejeitado' }[app.status] || app.status;
+            const statusColor = { pending: 'rgba(245,158,11,0.2);color:#f59e0b', approved: 'rgba(16,185,129,0.2);color:#10b981', rejected: 'rgba(239,68,68,0.2);color:#ef4444' }[app.status] || '';
+            return `
+                <tr class="rank-${rank}">
+                    <td class="rank-num">${medal || rank}</td>
+                    <td><strong>${app.name || '—'}</strong></td>
+                    <td>
+                        <div class="power-bar-wrap">
+                            <div class="power-bar" style="width:${barW}px"></div>
+                            <span class="power-val">${app.power || '—'}</span>
+                        </div>
+                    </td>
+                    <td><span class="ranking-status" style="background:${statusColor.split(';')[0]};${statusColor.split(';')[1]}">${statusLabel}</span></td>
+                </tr>`;
+        }).join('');
+    }
+
+    document.querySelectorAll('.ranking-filter').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.ranking-filter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            rankingFilter = btn.dataset.rfilter;
+            renderRanking();
+        };
+    });
+
+    document.getElementById('ranking-search').addEventListener('input', renderRanking);
+
+    document.querySelectorAll('th[data-col]').forEach(th => {
+        th.onclick = () => {
+            const col = th.dataset.col;
+            if (col === 'rank' || col === 'status') return;
+            if (rankingSort.col === col) rankingSort.dir = rankingSort.dir === 'asc' ? 'desc' : 'asc';
+            else { rankingSort.col = col; rankingSort.dir = 'desc'; }
+            document.querySelectorAll('th[data-col]').forEach(t => t.classList.remove('sorted'));
+            th.classList.add('sorted');
+            th.querySelector('.sort-icon').textContent = rankingSort.dir === 'asc' ? '↑' : '↓';
+            renderRanking();
+        };
+    });
+
+    // ── INSCRIÇÕES ──
+    function renderApplications(filter = 'all') {
+        const filtered = filter === 'all' ? applications : applications.filter(a => a.status === filter);
+        const playersList = document.getElementById('players-list');
+        if (!playersList) return;
+
+        if (filtered.length === 0) {
+            playersList.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>Nenhuma inscrição encontrada</h3></div>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(app => {
+            const statusClass = { pending: 'status-pending-badge', approved: 'status-approved-badge', rejected: 'status-rejected-badge' }[app.status] || '';
+            const statusText = { pending: 'Pendente', approved: 'Aprovado', rejected: 'Rejeitado' }[app.status] || '';
+            const date = app.createdAt?.toDate ? app.createdAt.toDate().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'N/A';
+            const actions = isAdmin ? (
+                app.status === 'pending' ? `
+                <div class="action-buttons">
+                    <button class="approve-btn" data-id="${app.id}"><i class="fas fa-check"></i> Aprovar</button>
+                    <button class="reject-btn" data-id="${app.id}"><i class="fas fa-times"></i> Rejeitar</button>
+                </div>` :
+                `<div class="action-buttons">
+                    <button class="revert-btn" data-id="${app.id}"><i class="fas fa-undo"></i> Voltar para Pendente</button>
+                </div>`
+            ) : '';
+            html += `
+                <div class="player-card ${app.status}">
+                    <div class="player-header">
+                        <div class="player-name">${app.name || 'Sem nome'}</div>
+                        <div class="player-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="player-info">
+                        <div><strong>Power:</strong> ${app.power || 'N/A'}</div>
+                        <div><strong>Origem:</strong> ${app.origin || 'N/A'}</div>
+                        <div><strong>Fuso:</strong> ${app.timezone || 'N/A'}</div>
+                        <div><strong>Enviado:</strong> ${date}</div>
+                    </div>
+                    <div style="margin-top:10px;"><strong>Méritos:</strong> ${app.merits || 'N/A'}</div>
+                    <div style="margin-top:10px;"><strong>Motivo:</strong> ${app.reason || 'N/A'}</div>
+                    ${actions}
+                </div>`;
+        });
+        playersList.innerHTML = html;
+        setupActionButtons();
+        updateStatistics();
+        updateTotalCount();
+    }
+
+    function updateStatistics() {
+        const s = { total: applications.length, pending: applications.filter(a=>a.status==='pending').length, approved: applications.filter(a=>a.status==='approved').length, rejected: applications.filter(a=>a.status==='rejected').length };
+        const el = document.getElementById('stats');
+        if (el) el.innerHTML = `
+            <div class="stat-card"><div class="stat-number">${s.total}</div><div class="stat-label">Total</div></div>
+            <div class="stat-card"><div class="stat-number">${s.pending}</div><div class="stat-label">Pendentes</div></div>
+            <div class="stat-card"><div class="stat-number">${s.approved}</div><div class="stat-label">Aprovados</div></div>
+            <div class="stat-card"><div class="stat-number">${s.rejected}</div><div class="stat-label">Rejeitados</div></div>`;
+    }
+
+    function updateTotalCount() {
+        const el = document.getElementById('total-count');
+        if (el) el.textContent = `${applications.length} inscrições`;
+    }
+
+    function setupActionButtons() {
+        document.querySelectorAll('.approve-btn').forEach(btn => { btn.replaceWith(btn.cloneNode(true)); });
+        document.querySelectorAll('.reject-btn').forEach(btn => { btn.replaceWith(btn.cloneNode(true)); });
+        document.querySelectorAll('.revert-btn').forEach(btn => { btn.replaceWith(btn.cloneNode(true)); });
+        document.querySelectorAll('.approve-btn').forEach(btn => {
+            btn.onclick = async (e) => { e.preventDefault(); await updateStatus(btn.getAttribute('data-id'), 'approved'); };
+        });
+        document.querySelectorAll('.reject-btn').forEach(btn => {
+            btn.onclick = async (e) => { e.preventDefault(); await updateStatus(btn.getAttribute('data-id'), 'rejected'); };
+        });
+        document.querySelectorAll('.revert-btn').forEach(btn => {
+            btn.onclick = async (e) => { e.preventDefault(); await updateStatus(btn.getAttribute('data-id'), 'pending'); };
+        });
+    }
+
+    async function updateStatus(id, status) {
+        try {
+            await db.collection('applications').doc(id).update({ status });
+            showSuccess(`Inscrição ${status === 'approved' ? 'aprovada' : 'rejeitada'}!`);
+        } catch (e) {
+            showError('Erro: ' + e.message);
+        }
+    }
+
+    // ── AUTH ──
+    async function loginAsAdmin(email, password) {
+        try {
+            const uc = await auth.signInWithEmailAndPassword(email, password);
+            currentUser = uc.user; isAdmin = true;
+            showSuccess("Login realizado!"); updateAdminUI(); return true;
+        } catch { showError("Email ou senha incorretos"); return false; }
+    }
+
+    function updateAdminUI() {
+        const d = document.getElementById('admin-email-display');
+        const b = document.getElementById('admin-btn');
+        if (isAdmin && currentUser) {
+            if (d) d.textContent = currentUser.email;
+            if (b) b.innerHTML = '<i class="fas fa-user-shield"></i> Admin Logado';
+        } else {
+            if (d) d.textContent = 'Não logado';
+            if (b) b.innerHTML = '<i class="fas fa-user-shield"></i> Painel Admin';
+        }
+    }
+
+    // ── INIT ──
+    document.addEventListener('DOMContentLoaded', () => {
+        db.collection('applications').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+            applications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            hideLoading();
+            renderApplications();
+            // se a aba ranking estiver ativa, atualiza também
+            if (document.getElementById('tab-ranking').classList.contains('active')) renderRanking();
+        }, err => { showError("Erro na conexão"); console.error(err); });
+
+        auth.onAuthStateChanged(user => {
+            currentUser = user; isAdmin = !!user; updateAdminUI();
+        });
+
+        document.getElementById('admin-btn').onclick = () => {
+            if (!isAdmin) { document.getElementById('login-modal').style.display = 'flex'; }
+            else { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; }
+        };
+        document.getElementById('login-submit').onclick = async () => {
+            const e = document.getElementById('admin-email').value;
+            const p = document.getElementById('admin-password').value;
+            if (e && p) { await loginAsAdmin(e, p); document.getElementById('login-modal').style.display = 'none'; }
+        };
+        document.getElementById('login-cancel').onclick = () => { document.getElementById('login-modal').style.display = 'none'; };
+        document.getElementById('login-modal').onclick = (e) => { if (e.target.id === 'login-modal') document.getElementById('login-modal').style.display = 'none'; };
+        document.getElementById('refresh-btn').onclick = () => { showSuccess('Lista atualizada!'); renderApplications(); };
+        document.getElementById('export-btn').onclick = () => {
+            const blob = new Blob([JSON.stringify(applications, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `inscricoes_${new Date().toISOString().split('T')[0]}.json`; a.click();
+            showSuccess('Dados exportados!');
+        };
+        document.getElementById('delete-all-btn').onclick = async () => {
+            if (confirm('⚠️ Apagar TODAS as inscrições? Não pode ser desfeito!')) {
+                const batch = db.batch();
+                applications.forEach(a => batch.delete(db.collection('applications').doc(a.id)));
+                await batch.commit(); showSuccess('Tudo apagado.');
+            }
+        };
+        document.getElementById('logout-btn').onclick = async () => { await auth.signOut(); showSuccess('Logout!'); };
+        document.querySelectorAll('.status-filter').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.status-filter').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active'); renderApplications(btn.dataset.status);
             };
-            
-            // Login
-            document.getElementById('login-submit').onclick = async () => {
-                const email = document.getElementById('admin-email').value;
-                const password = document.getElementById('admin-password').value;
-                if (email && password) {
-                    await loginAsAdmin(email, password);
-                    document.getElementById('login-modal').style.display = 'none';
-                }
-            };
-            
-            document.getElementById('login-cancel').onclick = () => {
-                document.getElementById('login-modal').style.display = 'none';
-            };
-            
-            // Fechar modal ao clicar fora
-            document.getElementById('login-modal').onclick = (e) => {
-                if (e.target.id === 'login-modal') {
-                    document.getElementById('login-modal').style.display = 'none';
-                }
-            };
-            
-            // Painel admin
-            document.getElementById('refresh-btn').onclick = () => {
-                showSuccess('Lista atualizada!');
-                renderApplications();
-            };
-            
-            document.getElementById('export-btn').onclick = async () => {
-                const data = JSON.stringify(applications, null, 2);
-                const blob = new Blob([data], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `inscricoes_${new Date().toISOString().split('T')[0]}.json`;
-                a.click();
-                showSuccess('Dados exportados!');
-            };
-            
-            document.getElementById('delete-all-btn').onclick = async () => {
-                if (confirm('⚠️ ATENÇÃO: Tem certeza que deseja apagar TODAS as inscrições?\n\nEsta ação NÃO pode ser desfeita!')) {
-                    const batch = db.batch();
-                    applications.forEach(app => {
-                        batch.delete(db.collection('applications').doc(app.id));
-                    });
-                    await batch.commit();
-                    showSuccess('Todas as inscrições foram apagadas.');
-                }
-            };
-            
-            document.getElementById('logout-btn').onclick = async () => {
-                await auth.signOut();
-                showSuccess('Logout realizado!');
-            };
-            
-            // Filtros
-            document.querySelectorAll('.status-filter').forEach(btn => {
-                btn.onclick = () => {
-                    document.querySelectorAll('.status-filter').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    renderApplications(btn.getAttribute('data-status'));
-                };
-            });
-            
-            // Formulário
-            document.getElementById('migration-form').onsubmit = async (e) => {
-                e.preventDefault();
-                
-                const formData = {
+        });
+        document.getElementById('migration-form').onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                await db.collection('applications').add({
                     name: document.getElementById('player-name').value,
                     power: document.getElementById('player-power').value,
                     merits: document.getElementById('player-merits').value,
@@ -653,40 +625,22 @@ service cloud.firestore {
                     status: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                try {
-                    await db.collection('applications').add(formData);
-                    showSuccess('Inscrição enviada com sucesso! Aguarde aprovação.');
-                    document.getElementById('migration-form').reset();
-                } catch (error) {
-                    console.error("Erro ao enviar:", error);
-                    showError('Erro ao enviar inscrição. Tente novamente.');
-                }
-            };
-            
-            // TESTE: Login automático (opcional)
-            setTimeout(async () => {
-                try {
-                    await loginAsAdmin("admin@s136.com", "bundapeluda");
-                    console.log("✅ Login automático realizado");
-                } catch (e) {
-                    console.log("ℹ️ Faça login manualmente");
-                }
-            }, 1000);
-            
-            // Fechar painel admin ao clicar fora
-            document.addEventListener('click', (e) => {
-                const panel = document.getElementById('admin-panel');
-                const adminBtn = document.getElementById('admin-btn');
-                
-                if (panel && panel.style.display === 'block' && 
-                    !panel.contains(e.target) && 
-                    !adminBtn.contains(e.target)) {
-                    panel.style.display = 'none';
-                }
-            });
+                });
+                showSuccess('Inscrição enviada! Aguarde aprovação.');
+                document.getElementById('migration-form').reset();
+            } catch (err) { showError('Erro ao enviar. Tente novamente.'); }
+        };
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('admin-panel');
+            const btn = document.getElementById('admin-btn');
+            if (panel && panel.style.display === 'block' && !panel.contains(e.target) && !btn.contains(e.target)) panel.style.display = 'none';
         });
-    </script>
+
+        // Login automático
+        setTimeout(async () => {
+            try { await loginAsAdmin("admin@s136.com", "bundapeluda"); } catch {}
+        }, 1000);
+    });
+</script>
 </body>
 </html>
