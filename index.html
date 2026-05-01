@@ -119,6 +119,27 @@
         .total-power { background: #0f172a; border-radius: 10px; padding: 15px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .total-power span { color: #94a3b8; font-size: 0.9rem; }
         .total-power strong { color: #60a5fa; font-size: 1.3rem; }
+
+        /* ── TIER BADGES ── */
+        .tier-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.03em; }
+        .tier-vanguard  { background: rgba(100,116,139,0.25); color: #94a3b8; border: 1px solid #475569; }
+        .tier-elite     { background: rgba(16,185,129,0.2);  color: #10b981; border: 1px solid #10b981; }
+        .tier-master    { background: rgba(59,130,246,0.2);  color: #60a5fa; border: 1px solid #3b82f6; }
+        .tier-hero      { background: rgba(168,85,247,0.2);  color: #c084fc; border: 1px solid #a855f7; }
+        .tier-legend    { background: rgba(251,191,36,0.2);  color: #fbbf24; border: 1px solid #f59e0b; }
+        .tier-mythic    { background: rgba(239,68,68,0.2);   color: #f87171; border: 1px solid #ef4444; }
+        /* row tinting by tier */
+        tr.row-vanguard { border-left: 3px solid #475569; }
+        tr.row-elite    { border-left: 3px solid #10b981; }
+        tr.row-master   { border-left: 3px solid #3b82f6; }
+        tr.row-hero     { border-left: 3px solid #a855f7; }
+        tr.row-legend   { border-left: 3px solid #f59e0b; }
+        tr.row-mythic   { border-left: 3px solid #ef4444; }
+        /* tier summary cards */
+        .tier-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .tier-summary-card { flex: 1; min-width: 90px; background: #0f172a; border-radius: 10px; padding: 10px 14px; text-align: center; border-top: 3px solid; }
+        .tier-summary-card .ts-count { font-size: 1.4rem; font-weight: bold; }
+        .tier-summary-card .ts-label { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -263,6 +284,7 @@
             <span>Poder Total dos Aprovados</span>
             <strong id="total-power-val">— M</strong>
         </div>
+        <div class="tier-summary" id="tier-summary"></div>
         <div class="ranking-controls">
             <button class="ranking-filter active" data-rfilter="approved">Aprovados</button>
             <button class="ranking-filter" data-rfilter="all">Todos</button>
@@ -276,6 +298,7 @@
                         <th data-col="rank">#</th>
                         <th data-col="name">Jogador <span class="sort-icon">↕</span></th>
                         <th data-col="power">Poder <span class="sort-icon">↕</span></th>
+                        <th data-col="tier">Categoria</th>
                         <th data-col="status">Status</th>
                     </tr>
                 </thead>
@@ -344,6 +367,16 @@
         if (el) { el.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${msg}`; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 5000); }
     }
 
+    // ── TIER HELPER ──
+    function getTier(powerVal) {
+        if (powerVal >= 260) return { name: 'Mythic',   cls: 'mythic',   color: '#ef4444' };
+        if (powerVal >= 180) return { name: 'Legend',   cls: 'legend',   color: '#f59e0b' };
+        if (powerVal >= 140) return { name: 'Hero',     cls: 'hero',     color: '#a855f7' };
+        if (powerVal >= 97)  return { name: 'Master',   cls: 'master',   color: '#3b82f6' };
+        if (powerVal >= 70)  return { name: 'Elite',    cls: 'elite',    color: '#10b981' };
+        return                      { name: 'Vanguard', cls: 'vanguard', color: '#475569' };
+    }
+
     // ── RANKING ──
     function renderRanking() {
         const search = (document.getElementById('ranking-search').value || '').toLowerCase();
@@ -369,31 +402,48 @@
             .reduce((s, a) => s + parsePower(a.power), 0);
         document.getElementById('total-power-val').textContent = formatPower(totalPower);
 
+        // tier summary
+        const tiers = ['Mythic','Legend','Hero','Master','Elite','Vanguard'];
+        const tierColors = { Mythic:'#ef4444', Legend:'#f59e0b', Hero:'#a855f7', Master:'#3b82f6', Elite:'#10b981', Vanguard:'#475569' };
+        const tierCount = {};
+        tiers.forEach(t => tierCount[t] = 0);
+        list.forEach(a => { const t = getTier(parsePower(a.power)); tierCount[t.name]++; });
+        const tierSummaryEl = document.getElementById('tier-summary');
+        if (tierSummaryEl) {
+            tierSummaryEl.innerHTML = tiers.map(t => `
+                <div class="tier-summary-card" style="border-color:${tierColors[t]}">
+                    <div class="ts-count" style="color:${tierColors[t]}">${tierCount[t]}</div>
+                    <div class="ts-label">${t}</div>
+                </div>`).join('');
+        }
+
         const maxPower = list.length ? parsePower(list[0].power) : 1;
         const tbody = document.getElementById('ranking-body');
 
         if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="ranking-empty"><i class="fas fa-users"></i><br>Nenhum jogador encontrado</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="ranking-empty"><i class="fas fa-users"></i><br>Nenhum jogador encontrado</td></tr>`;
             return;
         }
 
         tbody.innerHTML = list.map((app, i) => {
             const rank = i + 1;
             const pVal = parsePower(app.power);
+            const tier = getTier(pVal);
             const barW = Math.max(4, Math.round((pVal / maxPower) * 180));
             const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
             const statusLabel = { pending: 'Pendente', approved: 'Aprovado', rejected: 'Rejeitado' }[app.status] || app.status;
             const statusColor = { pending: 'rgba(245,158,11,0.2);color:#f59e0b', approved: 'rgba(16,185,129,0.2);color:#10b981', rejected: 'rgba(239,68,68,0.2);color:#ef4444' }[app.status] || '';
             return `
-                <tr class="rank-${rank}">
+                <tr class="rank-${rank} row-${tier.cls}">
                     <td class="rank-num">${medal || rank}</td>
                     <td><strong>${app.name || '—'}</strong></td>
                     <td>
                         <div class="power-bar-wrap">
-                            <div class="power-bar" style="width:${barW}px"></div>
-                            <span class="power-val">${app.power || '—'}</span>
+                            <div class="power-bar" style="width:${barW}px;background:${tier.color}"></div>
+                            <span class="power-val" style="color:${tier.color}">${app.power || '—'}</span>
                         </div>
                     </td>
+                    <td><span class="tier-badge tier-${tier.cls}">${tier.name}</span></td>
                     <td><span class="ranking-status" style="background:${statusColor.split(';')[0]};${statusColor.split(';')[1]}">${statusLabel}</span></td>
                 </tr>`;
         }).join('');
