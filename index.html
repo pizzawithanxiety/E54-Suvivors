@@ -318,11 +318,12 @@
                         <th data-col="name">Jogador <span class="sort-icon">↕</span></th>
                         <th data-col="power">Poder <span class="sort-icon">↕</span></th>
                         <th data-col="tier">Categoria</th>
+                        <th data-col="origin">ERA</th>
                         <th data-col="status">Status</th>
                     </tr>
                 </thead>
                 <tbody id="ranking-body">
-                    <tr><td colspan="4" class="ranking-empty"><i class="fas fa-spinner fa-spin"></i> Carregando...</td></tr>
+                    <tr><td colspan="6" class="ranking-empty"><i class="fas fa-spinner fa-spin"></i> Carregando...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -440,7 +441,7 @@
         const tbody = document.getElementById('ranking-body');
 
         if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="ranking-empty"><i class="fas fa-users"></i><br>Nenhum jogador encontrado</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="ranking-empty"><i class="fas fa-users"></i><br>Nenhum jogador encontrado</td></tr>`;
             return;
         }
 
@@ -463,6 +464,7 @@
                         </div>
                     </td>
                     <td><span class="tier-badge tier-${tier.cls}">${tier.name}</span></td>
+                    <td style="color:#94a3b8;font-size:0.85rem;">${app.origin || '—'}</td>
                     <td><span class="ranking-status" style="background:${statusColor.split(';')[0]};${statusColor.split(';')[1]}">${statusLabel}</span></td>
                 </tr>`;
         }).join('');
