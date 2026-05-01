@@ -60,6 +60,17 @@
         .approve-btn { background: #10b981; color: white; }
         .reject-btn { background: #ef4444; color: white; }
         .revert-btn { background: #475569; color: white; font-size: 0.85rem; }
+        .edit-btn { background: #f59e0b; color: #78350f; font-size: 0.85rem; }
+        /* Edit Modal */
+        .edit-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .edit-box { background: #1e293b; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; border: 1px solid #334155; }
+        .edit-box h3 { color: #f59e0b; margin-bottom: 20px; }
+        .edit-box label { display: block; margin-bottom: 6px; color: #cbd5e1; font-size: 0.9rem; }
+        .edit-box input, .edit-box select { width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #f1f5f9; font-size: 0.95rem; margin-bottom: 14px; }
+        .edit-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        .edit-buttons button { flex: 1; padding: 11px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .edit-save { background: #10b981; color: white; }
+        .edit-cancel-btn { background: #475569; color: white; }
         .loading { text-align: center; padding: 20px; color: #60a5fa; }
         .loading i { font-size: 2rem; margin-bottom: 10px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -162,6 +173,29 @@
     </div>
 </div>
 
+<!-- Edit Modal -->
+<div class="edit-modal" id="edit-modal">
+    <div class="edit-box">
+        <h3><i class="fas fa-edit"></i> Editar Jogador</h3>
+        <input type="hidden" id="edit-id">
+        <label>Nome</label>
+        <input type="text" id="edit-name">
+        <label>Power</label>
+        <input type="text" id="edit-power">
+        <label>ERA de Origem</label>
+        <select id="edit-origin">
+            <option value="">Selecione a ERA</option>
+            <option value="ERA #002">ERA #002</option><option value="ERA #003">ERA #003</option><option value="ERA #004">ERA #004</option><option value="ERA #005">ERA #005</option><option value="ERA #006">ERA #006</option><option value="ERA #007">ERA #007</option><option value="ERA #008">ERA #008</option><option value="ERA #009">ERA #009</option><option value="ERA #010">ERA #010</option><option value="ERA #011">ERA #011</option><option value="ERA #012">ERA #012</option><option value="ERA #013">ERA #013</option><option value="ERA #014">ERA #014</option><option value="ERA #015">ERA #015</option><option value="ERA #016">ERA #016</option><option value="ERA #017">ERA #017</option><option value="ERA #018">ERA #018</option><option value="ERA #019">ERA #019</option><option value="ERA #020">ERA #020</option><option value="ERA #021">ERA #021</option><option value="ERA #022">ERA #022</option><option value="ERA #023">ERA #023</option><option value="ERA #024">ERA #024</option><option value="ERA #025">ERA #025</option><option value="ERA #026">ERA #026</option><option value="ERA #027">ERA #027</option><option value="ERA #028">ERA #028</option><option value="ERA #029">ERA #029</option><option value="ERA #030">ERA #030</option><option value="ERA #031">ERA #031</option><option value="ERA #032">ERA #032</option><option value="ERA #033">ERA #033</option><option value="ERA #034">ERA #034</option><option value="ERA #035">ERA #035</option><option value="ERA #036">ERA #036</option><option value="ERA #037">ERA #037</option><option value="ERA #038">ERA #038</option><option value="ERA #039">ERA #039</option><option value="ERA #040">ERA #040</option><option value="ERA #041">ERA #041</option><option value="ERA #042">ERA #042</option><option value="ERA #043">ERA #043</option><option value="ERA #044">ERA #044</option><option value="ERA #045">ERA #045</option><option value="ERA #046">ERA #046</option><option value="ERA #047">ERA #047</option><option value="ERA #048">ERA #048</option><option value="ERA #049">ERA #049</option><option value="ERA #050">ERA #050</option><option value="ERA #051">ERA #051</option><option value="ERA #052">ERA #052</option><option value="ERA #053">ERA #053</option><option value="ERA #054">ERA #054</option><option value="ERA #055">ERA #055</option><option value="ERA #056">ERA #056</option><option value="ERA #057">ERA #057</option><option value="ERA #058">ERA #058</option><option value="ERA #059">ERA #059</option><option value="ERA #060">ERA #060</option><option value="ERA #061">ERA #061</option><option value="ERA #062">ERA #062</option><option value="ERA #063">ERA #063</option><option value="ERA #064">ERA #064</option><option value="ERA #065">ERA #065</option><option value="ERA #066">ERA #066</option><option value="ERA #067">ERA #067</option><option value="ERA #068">ERA #068</option><option value="ERA #069">ERA #069</option><option value="ERA #070">ERA #070</option><option value="ERA #071">ERA #071</option><option value="ERA #072">ERA #072</option><option value="ERA #073">ERA #073</option><option value="ERA #074">ERA #074</option><option value="ERA #075">ERA #075</option><option value="ERA #076">ERA #076</option><option value="ERA #077">ERA #077</option><option value="ERA #078">ERA #078</option><option value="ERA #079">ERA #079</option><option value="ERA #080">ERA #080</option><option value="ERA #081">ERA #081</option><option value="ERA #082">ERA #082</option><option value="ERA #083">ERA #083</option><option value="ERA #084">ERA #084</option><option value="ERA #085">ERA #085</option><option value="ERA #086">ERA #086</option><option value="ERA #087">ERA #087</option><option value="ERA #088">ERA #088</option><option value="ERA #089">ERA #089</option><option value="ERA #090">ERA #090</option><option value="ERA #091">ERA #091</option><option value="ERA #092">ERA #092</option>
+        </select>
+        <label>Méritos</label>
+        <input type="text" id="edit-merits">
+        <div class="edit-buttons">
+            <button class="edit-save" id="edit-save-btn"><i class="fas fa-save"></i> Salvar</button>
+            <button class="edit-cancel-btn" id="edit-cancel-btn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <div class="connection-status connected" id="connection-status">
     <i class="fas fa-wifi"></i> <span>Conectado ao Banco de Dados</span>
 </div>
@@ -206,25 +240,10 @@
                     <textarea id="player-merits" placeholder="Liste seus méritos e conquistas" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="origin-server">Servidor de Origem <span class="required">*</span></label>
+                    <label for="origin-server">ERA de Origem <span class="required">*</span></label>
                     <select id="origin-server" required>
-                        <option value="">Selecione seu servidor atual</option>
-                        <option value="R001">R001</option>
-                        <option value="K001">K001</option>
-                        <option value="K002">K002</option>
-                        <option value="E030">E030</option><option value="E031">E031</option><option value="E032">E032</option>
-                        <option value="E033">E033</option><option value="E034">E034</option><option value="E035">E035</option>
-                        <option value="E038">E038</option><option value="E039">E039</option><option value="E040">E040</option>
-                        <option value="E115">E115</option><option value="E116">E116</option><option value="E118">E118</option>
-                        <option value="E119">E119</option><option value="E127">E127</option><option value="E128">E128</option>
-                        <option value="E129">E129</option><option value="E134">E134</option><option value="E135">E135</option>
-                        <option value="E177">E177</option><option value="E178">E178</option><option value="E179">E179</option>
-                        <option value="E180">E180</option><option value="E181">E181</option><option value="E182">E182</option>
-                        <option value="E183">E183</option><option value="E184">E184</option><option value="E185">E185</option>
-                        <option value="E186">E186</option><option value="E187">E187</option><option value="E188">E188</option>
-                        <option value="E189">E189</option><option value="E190">E190</option><option value="E191">E191</option>
-                        <option value="E192">E192</option><option value="E193">E193</option><option value="E194">E194</option>
-                        <option value="E195">E195</option>
+                        <option value="">Selecione sua ERA atual</option>
+                        <option value="ERA #002">ERA #002</option><option value="ERA #003">ERA #003</option><option value="ERA #004">ERA #004</option><option value="ERA #005">ERA #005</option><option value="ERA #006">ERA #006</option><option value="ERA #007">ERA #007</option><option value="ERA #008">ERA #008</option><option value="ERA #009">ERA #009</option><option value="ERA #010">ERA #010</option><option value="ERA #011">ERA #011</option><option value="ERA #012">ERA #012</option><option value="ERA #013">ERA #013</option><option value="ERA #014">ERA #014</option><option value="ERA #015">ERA #015</option><option value="ERA #016">ERA #016</option><option value="ERA #017">ERA #017</option><option value="ERA #018">ERA #018</option><option value="ERA #019">ERA #019</option><option value="ERA #020">ERA #020</option><option value="ERA #021">ERA #021</option><option value="ERA #022">ERA #022</option><option value="ERA #023">ERA #023</option><option value="ERA #024">ERA #024</option><option value="ERA #025">ERA #025</option><option value="ERA #026">ERA #026</option><option value="ERA #027">ERA #027</option><option value="ERA #028">ERA #028</option><option value="ERA #029">ERA #029</option><option value="ERA #030">ERA #030</option><option value="ERA #031">ERA #031</option><option value="ERA #032">ERA #032</option><option value="ERA #033">ERA #033</option><option value="ERA #034">ERA #034</option><option value="ERA #035">ERA #035</option><option value="ERA #036">ERA #036</option><option value="ERA #037">ERA #037</option><option value="ERA #038">ERA #038</option><option value="ERA #039">ERA #039</option><option value="ERA #040">ERA #040</option><option value="ERA #041">ERA #041</option><option value="ERA #042">ERA #042</option><option value="ERA #043">ERA #043</option><option value="ERA #044">ERA #044</option><option value="ERA #045">ERA #045</option><option value="ERA #046">ERA #046</option><option value="ERA #047">ERA #047</option><option value="ERA #048">ERA #048</option><option value="ERA #049">ERA #049</option><option value="ERA #050">ERA #050</option><option value="ERA #051">ERA #051</option><option value="ERA #052">ERA #052</option><option value="ERA #053">ERA #053</option><option value="ERA #054">ERA #054</option><option value="ERA #055">ERA #055</option><option value="ERA #056">ERA #056</option><option value="ERA #057">ERA #057</option><option value="ERA #058">ERA #058</option><option value="ERA #059">ERA #059</option><option value="ERA #060">ERA #060</option><option value="ERA #061">ERA #061</option><option value="ERA #062">ERA #062</option><option value="ERA #063">ERA #063</option><option value="ERA #064">ERA #064</option><option value="ERA #065">ERA #065</option><option value="ERA #066">ERA #066</option><option value="ERA #067">ERA #067</option><option value="ERA #068">ERA #068</option><option value="ERA #069">ERA #069</option><option value="ERA #070">ERA #070</option><option value="ERA #071">ERA #071</option><option value="ERA #072">ERA #072</option><option value="ERA #073">ERA #073</option><option value="ERA #074">ERA #074</option><option value="ERA #075">ERA #075</option><option value="ERA #076">ERA #076</option><option value="ERA #077">ERA #077</option><option value="ERA #078">ERA #078</option><option value="ERA #079">ERA #079</option><option value="ERA #080">ERA #080</option><option value="ERA #081">ERA #081</option><option value="ERA #082">ERA #082</option><option value="ERA #083">ERA #083</option><option value="ERA #084">ERA #084</option><option value="ERA #085">ERA #085</option><option value="ERA #086">ERA #086</option><option value="ERA #087">ERA #087</option><option value="ERA #088">ERA #088</option><option value="ERA #089">ERA #089</option><option value="ERA #090">ERA #090</option><option value="ERA #091">ERA #091</option><option value="ERA #092">ERA #092</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -494,9 +513,11 @@
                 <div class="action-buttons">
                     <button class="approve-btn" data-id="${app.id}"><i class="fas fa-check"></i> Aprovar</button>
                     <button class="reject-btn" data-id="${app.id}"><i class="fas fa-times"></i> Rejeitar</button>
+                    <button class="edit-btn" data-id="${app.id}" data-name="${app.name}" data-power="${app.power}" data-origin="${app.origin||''}" data-merits="${app.merits||''}"><i class="fas fa-edit"></i></button>
                 </div>` :
                 `<div class="action-buttons">
                     <button class="revert-btn" data-id="${app.id}"><i class="fas fa-undo"></i> Voltar para Pendente</button>
+                    <button class="edit-btn" data-id="${app.id}" data-name="${app.name}" data-power="${app.power}" data-origin="${app.origin||''}" data-merits="${app.merits||''}"><i class="fas fa-edit"></i></button>
                 </div>`
             ) : '';
             html += `
@@ -507,7 +528,7 @@
                     </div>
                     <div class="player-info">
                         <div><strong>Power:</strong> ${app.power || 'N/A'}</div>
-                        <div><strong>Origem:</strong> ${app.origin || 'N/A'}</div>
+                        <div><strong>ERA:</strong> ${app.origin || 'N/A'}</div>
                         <div><strong>Fuso:</strong> ${app.timezone || 'N/A'}</div>
                         <div><strong>Enviado:</strong> ${date}</div>
                     </div>
@@ -541,6 +562,7 @@
         document.querySelectorAll('.approve-btn').forEach(btn => { btn.replaceWith(btn.cloneNode(true)); });
         document.querySelectorAll('.reject-btn').forEach(btn => { btn.replaceWith(btn.cloneNode(true)); });
         document.querySelectorAll('.revert-btn').forEach(btn => { btn.replaceWith(btn.cloneNode(true)); });
+        document.querySelectorAll('.edit-btn').forEach(btn => { btn.replaceWith(btn.cloneNode(true)); });
         document.querySelectorAll('.approve-btn').forEach(btn => {
             btn.onclick = async (e) => { e.preventDefault(); await updateStatus(btn.getAttribute('data-id'), 'approved'); };
         });
@@ -549,6 +571,17 @@
         });
         document.querySelectorAll('.revert-btn').forEach(btn => {
             btn.onclick = async (e) => { e.preventDefault(); await updateStatus(btn.getAttribute('data-id'), 'pending'); };
+        });
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                document.getElementById('edit-id').value = btn.dataset.id;
+                document.getElementById('edit-name').value = btn.dataset.name || '';
+                document.getElementById('edit-power').value = btn.dataset.power || '';
+                document.getElementById('edit-origin').value = btn.dataset.origin || '';
+                document.getElementById('edit-merits').value = btn.dataset.merits || '';
+                document.getElementById('edit-modal').style.display = 'flex';
+            };
         });
     }
 
@@ -599,6 +632,26 @@
             if (!isAdmin) { document.getElementById('login-modal').style.display = 'flex'; }
             else { const p = document.getElementById('admin-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; }
         };
+        document.getElementById('edit-cancel-btn').onclick = () => {
+            document.getElementById('edit-modal').style.display = 'none';
+        };
+        document.getElementById('edit-modal').onclick = (e) => {
+            if (e.target.id === 'edit-modal') document.getElementById('edit-modal').style.display = 'none';
+        };
+        document.getElementById('edit-save-btn').onclick = async () => {
+            const id     = document.getElementById('edit-id').value;
+            const name   = document.getElementById('edit-name').value.trim();
+            const power  = document.getElementById('edit-power').value.trim();
+            const origin = document.getElementById('edit-origin').value;
+            const merits = document.getElementById('edit-merits').value.trim();
+            if (!id) return;
+            try {
+                await db.collection('applications').doc(id).update({ name, power, origin, merits, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                showSuccess('Jogador atualizado!');
+                document.getElementById('edit-modal').style.display = 'none';
+            } catch(e) { showError('Erro: ' + e.message); }
+        };
+
         document.getElementById('login-submit').onclick = async () => {
             const e = document.getElementById('admin-email').value;
             const p = document.getElementById('admin-password').value;
