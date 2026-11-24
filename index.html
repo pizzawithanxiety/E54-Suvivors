@@ -108,6 +108,9 @@ textarea.input{min-height:110px;resize:vertical}
 .success i{font-size:2.6rem;color:var(--gold);margin-bottom:12px}
 .success h3{color:var(--gold-2);margin-bottom:8px}
 .success p{color:var(--ash)}
+.notice{display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;padding:11px 13px;border-radius:10px;font-size:.85rem;
+  background:rgba(201,165,76,.08);border:1px solid rgba(201,165,76,.35);color:var(--gold-2)}
+.notice i{margin-top:3px}
 .form-locked{opacity:.45;pointer-events:none;filter:grayscale(.3)}
 
 /* Side */
@@ -270,6 +273,7 @@ footer{border-top:1px solid var(--line);padding:24px 0;text-align:center;color:v
             <div class="small"><span></span><span id="reason-count">0/600</span></div>
           </div>
           <input class="hp" id="f-website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="notice"><i class="fas fa-circle-info"></i> <span data-i18n="noGuarantee">Submitting an application does not guarantee a spot. It depends on several factors, such as whether your ERA is in the same group, and some players have been waiting since the last migration.</span></div>
           <button class="btn gold submit" type="submit" id="submit"><i class="fas fa-feather-pointed"></i> <span data-i18n="send">Send application</span></button>
           <div class="msg" id="form-msg"></div>
         </div>
@@ -277,6 +281,7 @@ footer{border-top:1px solid var(--line);padding:24px 0;text-align:center;color:v
           <i class="fas fa-circle-check"></i>
           <h3 class="cinzel" data-i18n="thanksTitle">Application received!</h3>
           <p data-i18n="thanksText">Our R4s will review it soon. Watch the alliance chat in game.</p>
+          <p class="notice" style="margin-top:14px;text-align:left"><i class="fas fa-circle-info"></i> <span data-i18n="noGuarantee">Submitting an application does not guarantee a spot. It depends on several factors, such as whether your ERA is in the same group, and some players have been waiting since the last migration.</span></p>
           <button class="btn" type="button" id="another" style="margin-top:18px"><i class="fas fa-plus"></i> <span data-i18n="another">Send another</span></button>
         </div>
       </form>
@@ -501,6 +506,7 @@ const I18N = {
     setupCode:'Setup code', create:'Create', active:'Active', inactive:'Inactive', deactivate:'Remove access', activate:'Give access back',
     e_code:'Wrong setup code.', e_username:'Username: 3–30 letters, numbers, _ . -', e_password:'Password must have at least 8 characters.',
     e_owner_exists:'The owner account already exists. Please log in.', e_forbidden:'Only the owner can do this.',
+    noGuarantee:'Submitting an application does not guarantee a spot. It depends on several factors, such as whether your ERA is in the same group, and some players have been waiting since the last migration.',
     changePw:'Change my password', currentPw:'Current password', repeatPw:'Repeat new password',
     e_mismatch:'The new passwords do not match.', e_curpw:'Current password is wrong.', pwChanged:'Password changed ✔'
   },
@@ -537,6 +543,7 @@ const I18N = {
     setupCode:'Código de configuração', create:'Criar', active:'Ativo', inactive:'Inativo', deactivate:'Tirar acesso', activate:'Devolver acesso',
     e_code:'Código de configuração incorreto.', e_username:'Usuário: 3–30 letras, números, _ . -', e_password:'A senha precisa ter pelo menos 8 caracteres.',
     e_owner_exists:'A conta de dona já existe. Faça login.', e_forbidden:'Só a dona pode fazer isso.',
+    noGuarantee:'A inscrição não garante vaga. Depende de vários fatores, como a sua ERA estar no mesmo grupo, e alguns jogadores já estão esperando desde a última migração.',
     changePw:'Trocar minha senha', currentPw:'Senha atual', repeatPw:'Repita a nova senha',
     e_mismatch:'As senhas novas não são iguais.', e_curpw:'A senha atual está errada.', pwChanged:'Senha alterada ✔'
   }
